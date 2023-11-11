@@ -62,7 +62,7 @@ bool GameLib::SaveData()
 LocalSaver::LocalSaver()
 {
 	wchar_t exeFile[256];
-	//µÃµ½µ±Ç°ÎÄ¼þÂ·¾¶Ãû
+	//å¾—åˆ°å½“å‰æ–‡ä»¶è·¯å¾„å
 	GetModuleFileName(NULL, exeFile, 256);
 	for (int i = wcslen(exeFile); i >= 0; i--)
 	{

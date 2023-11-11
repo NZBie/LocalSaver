@@ -28,7 +28,7 @@
 #pragma comment(lib, "dxguid.lib")
 #endif
 
-//#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup" )   // ∆¡±Œøÿ÷∆Ã®œ‘ æ
+//#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup" )
 
 struct FrameContext
 {

@@ -14,7 +14,7 @@ enum SaveType
 	E_manual,
 };
 
-// µ¥·İ´æµµ
+// å•ä»½å­˜æ¡£
 class GameSave
 {
 public:
@@ -23,7 +23,7 @@ public:
 	const string _path;
 };
 
-// µ¥¸öÓÎÏ·´æµµ¿â
+// å•ä¸ªæ¸¸æˆå­˜æ¡£åº“
 class GameLib
 {
 public:
@@ -32,8 +32,8 @@ public:
 	vector<GameSave> _gameSaves;
 
 public:
-	GameLib(const string& gameName, const string& originPath);	// ĞÂ´æµµ¿â
-	GameLib(const string& gameName);							// ÒÑÓĞ´æµµ¿â
+	GameLib(const string& gameName, const string& originPath);	// æ–°å­˜æ¡£åº“
+	GameLib(const string& gameName);							// å·²æœ‰å­˜æ¡£åº“
 	~GameLib();
 
 	bool ReadData();

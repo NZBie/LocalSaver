@@ -20,16 +20,16 @@ static void HelpMarker(const char* desc)
 
 void ShowAddGameWindow(bool* p_open)
 {
-	ImGui::Begin(u8"Ìí¼ÓÓÎÏ·", p_open);
+	ImGui::Begin(u8"æ·»åŠ æ¸¸æˆ", p_open);
 	ImGui::SameLine();
 
 	static char gameName[64] = "";
-	ImGui::InputText(u8"ÓÎÏ·Ãû³Æ", gameName, IM_ARRAYSIZE(gameName));
+	ImGui::InputText(u8"æ¸¸æˆåç§°", gameName, IM_ARRAYSIZE(gameName));
 
 	static char originPath[256] = "";
-	ImGui::InputText(u8"##´æµµÂ·¾¶", originPath, IM_ARRAYSIZE(originPath));
+	ImGui::InputText(u8"##å­˜æ¡£è·¯å¾„", originPath, IM_ARRAYSIZE(originPath));
 	ImGui::SameLine();
-	if (ImGui::Button(u8"´æµµÂ·¾¶"))
+	if (ImGui::Button(u8"å­˜æ¡£è·¯å¾„"))
 	{
 		char* pathInfo = OpenFileSelect();
 		if (pathInfo != NULL)
@@ -39,9 +39,9 @@ void ShowAddGameWindow(bool* p_open)
 	}
 
 	//static char savePath[256] = "";
-	//ImGui::InputText(u8"##±£´æÂ·¾¶", savePath, IM_ARRAYSIZE(savePath));
+	//ImGui::InputText(u8"##ä¿å­˜è·¯å¾„", savePath, IM_ARRAYSIZE(savePath));
 	//ImGui::SameLine();
-	//if (ImGui::Button(u8"±£´æÂ·¾¶"))
+	//if (ImGui::Button(u8"ä¿å­˜è·¯å¾„"))
 	//{
 	//	char* pathInfo = OpenFileSelect();
 	//	if (pathInfo != NULL)
@@ -51,7 +51,7 @@ void ShowAddGameWindow(bool* p_open)
 	//}
 
 	static bool show_addError_win = false;
-	if (ImGui::Button(u8"È·¶¨Ìí¼Ó"))
+	if (ImGui::Button(u8"ç¡®å®šæ·»åŠ "))
 	{
 		auto w_gameName = ConvertToWchar(gameName);
 		wcout << w_gameName << endl;
@@ -68,7 +68,7 @@ void ShowAddGameWindow(bool* p_open)
 	if (show_addError_win)
 	{
 		ImGui::SameLine();
-		ImGui::TextColored(ImVec4(255, 0, 0, 1), u8"Ìí¼ÓÊ§°Ü");
+		ImGui::TextColored(ImVec4(255, 0, 0, 1), u8"æ·»åŠ å¤±è´¥");
 	}
 
 	ImGui::End();
@@ -81,10 +81,10 @@ void DrawGameList()
 	auto& libNames = $ls.getAllGameLibName(needRefreshLibList);
 	static string gameNamesItemStr = "";
 
-	// Ìí¼ÓÓÎÏ·°´Å¥
+	// æ·»åŠ æ¸¸æˆæŒ‰é’®
 	{
 		static bool show_addGame_window = false;
-		if (ImGui::Button(u8"Ìí¼ÓÓÎÏ·"))
+		if (ImGui::Button(u8"æ·»åŠ æ¸¸æˆ"))
 		{
 			show_addGame_window = true;
 		}
@@ -94,26 +94,26 @@ void DrawGameList()
 		}
 	}
 	
-	// É¾³ıÓÎÏ·°´Å¥
+	// åˆ é™¤æ¸¸æˆæŒ‰é’®
 	{
 		ImGui::SameLine();
-		if (ImGui::Button(u8"É¾³ı¸ÃÓÎÏ·"))
+		if (ImGui::Button(u8"åˆ é™¤è¯¥æ¸¸æˆ"))
 		{
 			ImGui::OpenPopup("delete_popup");
 		}
 		if (ImGui::BeginPopup("delete_popup"))
 		{
-			if (ImGui::Selectable(u8"É¾³ı´æµµÎÄ¼ş"))
+			if (ImGui::Selectable(u8"åˆ é™¤å­˜æ¡£æ–‡ä»¶"))
 				$ls.DeleteGameLib(libNames[curGameId], true);
-			//if (ImGui::Selectable(u8"½öÉ¾³ı¼ÇÂ¼"))
+			//if (ImGui::Selectable(u8"ä»…åˆ é™¤è®°å½•"))
 			//	$ls.DeleteGameLib(libNames[curGameId], false);
-			if (ImGui::Selectable(u8"È¡Ïû"))
+			if (ImGui::Selectable(u8"å–æ¶ˆ"))
 				;
 			ImGui::EndPopup();
 		}
 	}
 
-	// µ±Ç°ÓÎÏ·ÁĞ±í
+	// å½“å‰æ¸¸æˆåˆ—è¡¨
 	{
 		if (needRefreshLibList)
 		{
@@ -123,13 +123,13 @@ void DrawGameList()
 				gameNamesItemStr += name + '\0';
 			}
 		}
-		if (ImGui::Combo(u8"ÓÎÏ·ÁĞ±í", &curGameId, gameNamesItemStr.c_str(), 5))
+		if (ImGui::Combo(u8"æ¸¸æˆåˆ—è¡¨", &curGameId, gameNamesItemStr.c_str(), 5))
 		{
 
 		}
 	}
 
-	ImGui::SameLine(); HelpMarker(u8"´æµµ¿âµÄÓÎÏ·");
+	ImGui::SameLine(); HelpMarker(u8"å­˜æ¡£åº“çš„æ¸¸æˆ");
 }
 
 void ShowLocalSaverWindow(bool* p_open)
