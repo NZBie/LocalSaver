@@ -50,15 +50,25 @@ void ShowAddGameWindow(bool* p_open)
 	//	}
 	//}
 
+	static bool show_addError_win = false;
 	if (ImGui::Button(u8"确定添加"))
 	{
-		cout << gameName << endl;
-		auto x = ConvertLPSTRToLPWSTR(gameName);
-		cout << x << endl;
+		auto w_gameName = ConvertToWchar(gameName);
+		wcout << w_gameName << endl;
 		if ($ls.AddGameLib(gameName, originPath))
 		{
 			*p_open = false;
+			show_addError_win = false;
 		}
+		else
+		{
+			show_addError_win = true;
+		}
+	}
+	if (show_addError_win)
+	{
+		ImGui::SameLine();
+		ImGui::TextColored(ImVec4(255, 0, 0, 1), u8"添加失败");
 	}
 
 	ImGui::End();
@@ -83,7 +93,7 @@ void DrawGameList()
 			ShowAddGameWindow(&show_addGame_window);
 		}
 	}
-
+	
 	// 删除游戏按钮
 	{
 		ImGui::SameLine();
@@ -95,8 +105,8 @@ void DrawGameList()
 		{
 			if (ImGui::Selectable(u8"删除存档文件"))
 				$ls.DeleteGameLib(libNames[curGameId], true);
-			if (ImGui::Selectable(u8"仅删除记录"))
-				$ls.DeleteGameLib(libNames[curGameId], false);
+			//if (ImGui::Selectable(u8"仅删除记录"))
+			//	$ls.DeleteGameLib(libNames[curGameId], false);
 			if (ImGui::Selectable(u8"取消"))
 				;
 			ImGui::EndPopup();
@@ -115,7 +125,7 @@ void DrawGameList()
 		}
 		if (ImGui::Combo(u8"游戏列表", &curGameId, gameNamesItemStr.c_str(), 5))
 		{
-			$ls.SaveData();
+
 		}
 	}
 
@@ -126,7 +136,12 @@ void ShowLocalSaverWindow(bool* p_open)
 {
 	ImGui::Begin("LocalSaver", p_open);
 
-	$ls.ReadData();
+	static bool isFirst = true;
+	if (isFirst)
+	{
+		isFirst = false;
+		// TODO
+	}
 
 	DrawGameList();
 

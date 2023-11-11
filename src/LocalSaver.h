@@ -36,21 +36,22 @@ public:
 	GameLib(const string& gameName);							// ÒÑÓÐ´æµµ¿â
 	~GameLib();
 
-	void ReadData();
-	void SaveData();
+	bool ReadData();
+	bool SaveData();
 };
 
 class LocalSaver
 {
 protected:
-	vector<const string> _libNames;
+	vector<string> _libNames;
 	map<const string, GameLib> _gameLibs;
 
 	bool _haveChange = true;
 
 public:
+	static LocalSaver& getInstance() { static LocalSaver ins; return ins; }
 	int getGameCount() { return _gameLibs.size(); }
-	vector<const string>& getAllGameLibName(bool& haveChange);
+	vector<string>& getAllGameLibName(bool& haveChange);
 	GameLib* getGamedLibInfo(const string& gameName);
 	bool AddGameLib(const string& gameName, const string& originPath);
 	void DeleteGameLib(const string& gameName, bool clearSaves);
@@ -64,4 +65,4 @@ protected:
 	~LocalSaver();
 };
 
-extern LocalSaver $ls;
+#define $ls LocalSaver::getInstance()

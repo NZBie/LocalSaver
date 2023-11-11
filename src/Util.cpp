@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <json.h>
+#include <io.h>
+#include <direct.h>
 
 char* OpenFileSelect()
 {
@@ -25,9 +27,8 @@ char* OpenFileSelect()
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 	if (GetOpenFileName(&ofn))
 	{
-		auto path = ConvertLPWSTRToLPSTR(ofn.lpstrFile);
-		std::cout << ofn.lpstrFile << std::endl;
-		std::cout << path << std::endl;
+		auto path = ConvertToChar(ofn.lpstrFile);
+		std::wcout << path << std::endl;
 		return path;
 	}
 	else
@@ -37,9 +38,9 @@ char* OpenFileSelect()
 	}
 }
 
-LPSTR ConvertLPWSTRToLPSTR(LPCWSTR in)
+char* ConvertToChar(wchar_t* in)
 {
-	LPSTR pszOut = nullptr;
+	char* pszOut = nullptr;
 	try
 	{
 		if (in != nullptr)
@@ -60,9 +61,9 @@ LPSTR ConvertLPWSTRToLPSTR(LPCWSTR in)
 	return pszOut;
 }
 
-LPWSTR ConvertLPSTRToLPWSTR(LPCSTR in)
+wchar_t* ConvertToWchar(const char* in)
 {
-	LPWSTR out = nullptr;
+	wchar_t* out = nullptr;
 	try
 	{
 		if (in != nullptr)
@@ -78,28 +79,16 @@ LPWSTR ConvertLPSTRToLPWSTR(LPCSTR in)
 	return out;
 }
 
-//wchar_t* ConvertCharToWchar(const char* in)
-//{
-//	int len = strlen(in);
-//	wchar_t* out = new wchar_t[len];
-//	swprintf(out, len, L"%hs", in);
-//	return out;
-//}
-//
-//char* ConvertWchatToChar(const wchar_t* in)
-//{
-//	int len = wcslen(in);
-//	char* out = new char[len];
-//	sprintf_s(out, len, "%ws", in);
-//	return out;
-//}
-
 void fileWrite(const std::string& path, const std::string& content)
 {
 	std::ofstream ofile(path);
-	ofile << content;
-	ofile.close();
-	printf("[SaveFile: %s]\n%s\n/end/\n", path.c_str(), content);
+	if (ofile.good())
+	{
+		ofile << content;
+		ofile.close();
+		//printf("[SaveFile: %s]\n%s\n/end/\n", path.c_str(), content);
+		printf("[SaveFile: %s]\n", path.c_str());
+	}
 }
 
 std::string fileRead(const std::string& path)
@@ -115,7 +104,8 @@ std::string fileRead(const std::string& path)
 		buff[len] = '\0';
 		ifile.close();
 
-		printf("[ReadFile: %s]\n%s\n/end/\n", path.c_str(), buff);
+		//printf("[ReadFile: %s]\n%s\n/end/\n", path.c_str(), buff);
+		printf("[ReadFile: %s]\n", path.c_str());
 		std::string str = buff;
 		delete buff;
 		return str;
@@ -126,8 +116,50 @@ std::string fileRead(const std::string& path)
 	}
 }
 
-//bool isFileExists_ifstream(const std::string& path)
-//{
-//	std::ifstream f(path);
-//	return f.good();
-//}
+bool IsDirectory_win(const LPCWSTR path)
+{
+	wchar_t curPath[MAX_PATH];
+	ZeroMemory(curPath, sizeof(curPath));
+	swprintf_s(curPath, L"%s//*", path);
+	WIN32_FIND_DATAW FindFileData;
+	ZeroMemory(&FindFileData, sizeof(WIN32_FIND_DATAA));
+
+	HANDLE hFile = FindFirstFileW(curPath, &FindFileData);
+	FindClose(hFile);
+	return hFile != INVALID_HANDLE_VALUE;
+}
+
+bool DeleteDir_win(const LPCWSTR path)
+{
+	wchar_t curPath[MAX_PATH];
+	ZeroMemory(curPath, sizeof(curPath));
+	swprintf_s(curPath, L"%s//*.*", path);
+
+	WIN32_FIND_DATAW FindFileData;
+	ZeroMemory(&FindFileData, sizeof(WIN32_FIND_DATAW));
+	HANDLE hFile = FindFirstFileW(curPath, &FindFileData);
+
+	wchar_t wstr[MAX_PATH];
+	bool ret = true;
+	while (ret)
+	{
+		if (wcscmp(FindFileData.cFileName, L".") && wcscmp(FindFileData.cFileName, L".."))
+		{
+			swprintf_s(wstr, L"%s/%s", path, FindFileData.cFileName);
+			if (IsDirectory_win(wstr))
+			{
+				printf("Ŀ¼Ϊ:%s/n", wstr);
+				ret &= DeleteDir_win(wstr);
+			}
+			else
+			{
+				ret &= DeleteFileW(wstr);
+			}
+		}
+		ret &= FindNextFileW(hFile, &FindFileData);
+	}
+	ret &= FindClose(hFile);
+	ret &= RemoveDirectoryW(path);
+	return ret;
+}
+
