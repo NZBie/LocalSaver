@@ -15,12 +15,13 @@ enum SaveType
 };
 
 // 单份存档
-class GameSave
+struct GameSave
 {
-public:
 	const int _id;
 	const SaveType _type;
 	const string _path;
+
+	void makeJson(Json::Value& root);
 };
 
 // 单个游戏存档库
@@ -38,8 +39,11 @@ public:
 
 	bool ReadData();
 	bool SaveData();
+
+	bool ExcuteArchive(bool isAuto);		// 执行一次存档
 };
 
+// 整个存档管理类
 class LocalSaver
 {
 protected:

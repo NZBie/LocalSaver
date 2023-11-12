@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <json.h>
-#include <io.h>
-#include <direct.h>
 
 char* OpenFileSelect()
 {
@@ -148,7 +145,6 @@ bool DeleteDir_win(const LPCWSTR path)
 			swprintf_s(wstr, L"%s/%s", path, FindFileData.cFileName);
 			if (IsDirectory_win(wstr))
 			{
-				printf("Ŀ¼Ϊ:%s/n", wstr);
 				ret &= DeleteDir_win(wstr);
 			}
 			else
@@ -158,7 +154,7 @@ bool DeleteDir_win(const LPCWSTR path)
 		}
 		ret &= FindNextFileW(hFile, &FindFileData);
 	}
-	ret &= FindClose(hFile);
+	ret = FindClose(hFile);
 	ret &= RemoveDirectoryW(path);
 	return ret;
 }

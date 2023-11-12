@@ -11,6 +11,14 @@ static Json::StyledWriter JsonSW;
 static Json::FastWriter JsonFW;
 static Json::Reader JsonR;
 
+void GameSave::makeJson(Json::Value& root)
+{
+	root.clear();
+	root["id"] = this->_id;
+	root["type"] = this->_type;
+	root["path"] = this->_path;
+}
+
 GameLib::GameLib(const string& gameName, const string& originPath) :
 	_name(gameName),
 	_originPath(originPath)
@@ -36,8 +44,23 @@ bool GameLib::ReadData()
 	const string strJson = fileRead(filePath);
 	Json::Value root;
 	JsonR.parse(strJson, root);
+	if (!root.isObject()) return false;
 
 	_originPath = root["originPath"].asString();
+	if (root["saves"].isArray())
+	{
+		for (auto saveJson : root["saves"])
+		{
+			this->_gameSaves.push_back(
+				GameSave
+				{
+					saveJson["id"].asInt(),
+					SaveType(saveJson["type"].asInt()),
+					saveJson["path"].asString()
+				}
+			);
+		}
+	}
 	return true;
 }
 
@@ -46,24 +69,47 @@ bool GameLib::SaveData()
 	Json::Value root;
 	root["name"] = _name;
 	root["originPath"] = _originPath;
+	for (auto& save : this->_gameSaves)
+	{
+		Json::Value saveJson;
+		save.makeJson(saveJson);
+		root["saves"].append(saveJson);
+	}
+
 	const string strJson = JsonSW.write(root);
 
 	string filePath = config::savePath + _name;
-	bool suc = CreateDirectory(ConvertToWchar(filePath.c_str()), NULL);
-	if (!suc) return false;
+	CreateDirectory(ConvertToWchar(filePath.c_str()), NULL);// todo判断目录存在
 
 	filePath += "/";
 	filePath += config::saveDataFileName;
 	fileWrite(filePath, strJson);
+	return true;
+}
+
+bool GameLib::ExcuteArchive(bool isAuto)
+{
+	int id = rand() % 10000;
+	const string path = config::savePath + this->_name + "/" + to_string(id);
+	CreateDirectory(ConvertToWchar(path.c_str()), NULL);
+	this->_gameSaves.push_back(
+		GameSave
+		{
+			id,
+			isAuto ? SaveType::E_auto : SaveType::E_manual,
+			path
+		}
+	);
+	this->SaveData();
+	return true;
 }
 
 /* LocalSaver */
 
 LocalSaver::LocalSaver()
 {
-	wchar_t exeFile[256];
-	//得到当前文件路径名
-	GetModuleFileName(NULL, exeFile, 256);
+	wchar_t exeFile[MAX_PATH];
+	GetModuleFileName(NULL, exeFile, MAX_PATH);
 	for (int i = wcslen(exeFile); i >= 0; i--)
 	{
 		if (exeFile[i] == '/' || exeFile[i] == '\\')
@@ -72,7 +118,7 @@ LocalSaver::LocalSaver()
 			exeFile[i] = '\0';
 	}
 	config::savePath = ConvertToChar(exeFile) + string("save/");
-	printf("[%s]\n", config::savePath.c_str());
+	printf("<存储目录: %s>\n", config::savePath.c_str());
 
 	ReadData();
 }
@@ -80,18 +126,6 @@ LocalSaver::LocalSaver()
 LocalSaver::~LocalSaver()
 {
 }
-//
-//vector<const string>& getAllGameLibName()
-//{
-//	int id = 0;
-//	for (auto& kv : _gameLibs)
-//	{
-//		const char* name = kv.first.c_str();
-//		strcpy_s(names[id], strlen(name), name);
-//		id++;
-//	}
-//}
-
 
 vector<string>& LocalSaver::getAllGameLibName(bool& haveChange)
 {
